@@ -1,8 +1,7 @@
 "use strict";
-
 const knockKnockJokes = require('knock-knock-jokes');
 const cnApi = require('chuck-norris-api');
-
+const nessieSdk = require('nessie-nodejs-sdk')
 const talkify = require('talkify');
 
 const Bot = talkify.Bot;
