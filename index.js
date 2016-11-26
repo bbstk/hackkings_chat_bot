@@ -85,9 +85,14 @@ const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', f
     });
 })
 
-bot.addSkill(kJokeSkill);
-bot.addSkill(cJokeSkill);
-bot.addSkill(balanceSkill);
-bot.addSkill(lastPurchaseSkill);
+const unknownSkill = new Skill('my_unknown_skill', undefined, function (context, req, res) {
+    return res.send(new SingleLineMessage("I'm sorry sir, I do not understand your query. Please try again."));
+})
+
+bot.addSkill(kJokeSkill, 0.9);
+bot.addSkill(cJokeSkill, 0.9);
+bot.addSkill(balanceSkill, 0.9);
+bot.addSkill(lastPurchaseSkill, 0.9);
+bot.addSkill(unknownSkill);
 
 module.exports = bot;
