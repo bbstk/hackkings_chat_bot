@@ -17,6 +17,8 @@ const Skill = BotTypes.Skill;
 const bot = new Bot();
 
 bot.trainAll([
+    new TrainingDocument('category', 'spent on what'),
+
     new TrainingDocument('balance', 'balance'),
 
     new TrainingDocument('last_purchase', 'last purchase'),
@@ -98,10 +100,45 @@ const unknownSkill = new Skill('my_unknown_skill', undefined, function (context,
     return res.send(new SingleLineMessage("I'm sorry sir, I do not understand your query. Please try again."));
 });
 
+const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category', function (context, req, res) {
+    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    request.get(url,function(error,response,body){
+        if(error){
+                console.log(error);
+        }else{
+                let purchases = (JSON.parse(response.body));
+                let categories = {};
+                purchases.forEach(function (element, index, array) {
+                    let cat = element.description;
+                    if (categories[cat] !== null || categories[cat] !== undefined) {
+                        if (categories.cat === undefined) 
+                            categories[cat] = element.amount;
+                            
+                        else 
+                            categories[cat] = categories[cat] + element.amount;
+                    }
+                   // console.log(element);
+                })
+                console.log(categories);
+                let msg = "So far, you have spent \n";
+                for (var key in categories) {
+                    if (categories.hasOwnProperty(key)) {
+                        msg += "\n£" + categories[key] + " on " + key; 
+                        //console.log(key + " -> " + p[key]);
+                    }
+                }
+                console.log(msg);
+                return res.send(new SingleLineMessage(msg));
+
+            
+        }
+    });
+})
 bot.addSkill(kJokeSkill, 0.9);
 bot.addSkill(cJokeSkill, 0.9);
 bot.addSkill(balanceSkill, 0.9);
 bot.addSkill(lastPurchaseSkill, 0.9);
+bot.addSkill(spendByCategorySkill, 0.9);
 bot.addSkill(capitalOneJokeSkill);
 bot.addSkill(unknownSkill);
 
