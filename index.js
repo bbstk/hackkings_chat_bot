@@ -24,6 +24,11 @@ bot.trainAll([
     new TrainingDocument('knock_joke', 'knock'),
     new TrainingDocument('knock_joke', 'knock knock'),
 
+    new TrainingDocument('best_capital_one', 'best credit card company'),
+    new TrainingDocument('best_capital_one', 'awesome company'),
+    new TrainingDocument('best_capital_one', 'really nice firm'),
+
+
     new TrainingDocument('chuck_norris_joke', 'chuck norris'),
     new TrainingDocument('chuck_norris_joke', 'chuck'),
     new TrainingDocument('chuck_norris_joke', 'norris'),
@@ -85,14 +90,19 @@ const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', f
     });
 })
 
+const capitalOneJokeSkill = new Skill('my_best_capital_one_skill', 'best_capital_one', function(context, req, res){
+    return res.send(new SingleLineMessage("I have heard Capital One are pretty good."));
+});
+
 const unknownSkill = new Skill('my_unknown_skill', undefined, function (context, req, res) {
     return res.send(new SingleLineMessage("I'm sorry sir, I do not understand your query. Please try again."));
-})
+});
 
 bot.addSkill(kJokeSkill, 0.9);
 bot.addSkill(cJokeSkill, 0.9);
 bot.addSkill(balanceSkill, 0.9);
 bot.addSkill(lastPurchaseSkill, 0.9);
+bot.addSkill(capitalOneJokeSkill);
 bot.addSkill(unknownSkill);
 
 module.exports = bot;
