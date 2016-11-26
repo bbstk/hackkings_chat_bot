@@ -17,6 +17,9 @@ const Skill = BotTypes.Skill;
 const bot = new Bot();
 
 bot.trainAll([
+    new TrainingDocument('food_spent', 'how much have i spent on food'),
+    new TrainingDocument('total_spend', 'how much have i spent'),
+
     new TrainingDocument('category', 'spent on what'),
 
     new TrainingDocument('balance', 'balance'),
@@ -38,6 +41,25 @@ bot.trainAll([
 ], function () {
     console.log(' BOT> Ready.');
 });
+
+const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', function (context, req, res)  {
+    console.log(bot.getContextStore());
+    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    request.get(url,function(error,response,body){
+            if(error){
+                    console.log(error);
+            }else{
+                    let arrayche = (JSON.parse(response.body));
+                    let total = 0;
+                    arrayche.forEach(function (element, index, array) {
+                        total += element.amount;
+                    })
+                    let msg = total;
+                    console.log(msg);
+                    return res.send(new SingleLineMessage("You have spent £" + msg + " in total."));
+            }
+    });
+})
 
 const kJokeSkill = new Skill('my_knock_knock_joke_skill', 'knock_joke', function (context, req, res) {
     if (!context.kJokes) {
@@ -134,11 +156,38 @@ const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category',
         }
     });
 })
+
+const spendOnFoodSkill = new Skill('my_spend_on_food_skill', 'food_spent', function (context, req, res) {
+    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    request.get(url,function(error,response,body){
+        if(error){
+                console.log(error);
+        }else{
+                let purchases = (JSON.parse(response.body));
+                let total = 0;
+                purchases.forEach(function (element, index, array) {
+                    let cat = element.description;
+                    if (cat === 'food') {
+                        total += element.amount;
+                    }
+                   // console.log(element);
+                })
+                let msg = "So far, you have spent £" + total + " on food.";
+
+                console.log(msg);
+                return res.send(new SingleLineMessage(msg));
+
+            
+        }
+    });
+})
 bot.addSkill(kJokeSkill, 0.9);
 bot.addSkill(cJokeSkill, 0.9);
 bot.addSkill(balanceSkill, 0.9);
 bot.addSkill(lastPurchaseSkill, 0.9);
 bot.addSkill(spendByCategorySkill, 0.9);
+bot.addSkill(spendOnFoodSkill, 0.9);
+bot.addSkill(totalSpendSkill, 0.9);
 bot.addSkill(capitalOneJokeSkill);
 bot.addSkill(unknownSkill);
 
