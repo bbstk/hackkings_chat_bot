@@ -168,7 +168,7 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
                     arrayche.forEach(function (element, index, array) {
                         total += element.amount;
                     })
-                    let msg = total;
+                    let msg = total.toFixed(2);
                     console.log(req.skill.current.topic);
                     msg = "You have spent £" + msg + " in total."
                     context.lastMsg = msg;
