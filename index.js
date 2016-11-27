@@ -179,7 +179,10 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
 })
 
 const repeatSkill = new Skill('my_repeat_skill', 'repeat', function (context, req, res) {
-    return res.send(new SingleLineMessage("Of course! My last message was \n" + context.lastMsg + " \n About " + context.lastRequest ));
+    let msg = "There is no last message."
+    if (context.lastMsg !== undefined && context.lastRequest != undefined)
+        msg = "Of course! My last message was \n" + context.lastMsg + " \n About " + context.lastRequest;
+    return res.send(new SingleLineMessage(msg));
 })
 
 const balanceSkill = new Skill('my_balance_skill', 'balance', function (context, req, res) {
