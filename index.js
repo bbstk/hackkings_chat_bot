@@ -187,6 +187,7 @@ const repeatSkill = new Skill('my_repeat_skill', 'repeat', function (context, re
 
 const balanceSkill = new Skill('my_balance_skill', 'balance', function (context, req, res) {
     let accId = userResolver(req, "customer");
+    context.lastRequest = 'balance';
     var url = "http://api.reimaginebanking.com/customers/" + accId + "/accounts?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
             if(error){
@@ -195,13 +196,16 @@ const balanceSkill = new Skill('my_balance_skill', 'balance', function (context,
                     console.log(JSON.parse(response.body)[0].balance);
                     let msg = JSON.parse(response.body)[0].balance;
                     let num = Math.round(msg*100)/100;
-                    return res.send(new SingleLineMessage("You currently have £" + num + " in your account."));
+                    msg = "You currently have £" + num + " in your account.";
+                    context.lastMsg = msg;
+                    return res.send(new SingleLineMessage(msg));
             }
     });
 })
 
 const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', function (context, req, res) {
     let accId = userResolver(req, "account");
+    context.lastRequest = 'last_purchase';
     var url = "http://api.reimaginebanking.com/accounts/"+ accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
             if(error){
@@ -210,14 +214,17 @@ const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', f
                     let arrayche = (JSON.parse(response.body));
                     let purchase = arrayche[arrayche.length-1];
                     let msg = "You spent " + purchase.amount + " on " + purchase.description + " on " + purchase.purchase_date + ".";
-                    console.log(msg);
+                    context.lastMsg = msg;
                     return res.send(new SingleLineMessage(msg));
             }
     });
 })  
 
 const capitalOneJokeSkill = new Skill('my_best_capital_one_skill', 'best_capital_one', function(context, req, res){
-    return res.send(new SingleLineMessage("I have heard Capital One are pretty good."));
+    context.lastRequest = 'capital_one';
+    let msg = "I have heard Capital One are pretty good.";
+    context.lastMsg = msg;
+    return res.send(new SingleLineMessage(msg));
 });
 
 const unknownSkill = new Skill('my_unknown_skill', undefined, function (context, req, res) {
@@ -227,6 +234,7 @@ const unknownSkill = new Skill('my_unknown_skill', undefined, function (context,
 
 const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category', function (context, req, res) {
     let accId = userResolver(req, "account");
+    context.lastRequest = 'category_spend';
     var url = "http://api.reimaginebanking.com/accounts/" + accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
         if(error){
@@ -254,6 +262,7 @@ const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category',
                     }
                 }
                 console.log(msg);
+                context.lastMsg = msg;
                 return res.send(new SingleLineMessage(msg));
 
             
@@ -262,6 +271,7 @@ const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category',
 })
 
 const spendOnFoodSkill = new Skill('my_spend_on_food_skill', 'food_spent', function (context, req, res) {
+    context.lastRequest = 'spend_food';
     let accId = userResolver(req, "account");
     var url = "http://api.reimaginebanking.com/accounts/" + accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
@@ -280,6 +290,7 @@ const spendOnFoodSkill = new Skill('my_spend_on_food_skill', 'food_spent', funct
                 let msg = "So far, you have spent £" + total + " on food.";
 
                 console.log(msg);
+                context.lastMsg = msg;
                 return res.send(new SingleLineMessage(msg));
             }
     });
