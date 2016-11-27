@@ -16,6 +16,28 @@ const Skill = BotTypes.Skill;
 
 const bot = new Bot();
 
+const fbIdToCustomerMap = {
+    "1473286519367564": "583a2afd0fa692b34a9b87fe", //VANKO
+    "1146248908823171": "583a2af10fa692b34a9b87f7", //KRISI
+    "1170318786370648": "583a2afd0fa692b34a9b87fc", //DANI
+    "1151558158293039": "583a2af10fa692b34a9b87fa"  //IVCHO
+}
+
+const fbIdToAccountMap = {
+    "1473286519367564": "583a327a0fa692b34a9b8809", //VANKO
+    "1146248908823171": "583a324d0fa692b34a9b8808", //KRISI
+    "1170318786370648": "583a324d0fa692b34a9b8806", //DANI
+    "1151558158293039": "583a324d0fa692b34a9b8807"  //IVCHO
+}
+
+const phoneIdToCustomerMap = {
+    "07871611645": "583a2afd0fa692b34a9b87fe"       //VANKO
+}
+
+const phoneIdToAccountMap = {
+    "07871611645": "583a327a0fa692b34a9b8809"       //VANKO
+}
+
 bot.trainAll([
 
     // Train the bot to be nice and good
@@ -68,6 +90,32 @@ bot.trainAll([
 });
 
 
+function userResolver(req, type) {
+    let id = req.id;
+    if (type === "account"){
+        if (id in fbIdToAccountMap) {
+            return fbIdToAccountMap[id]; 
+        }
+        else if (id in phoneIdToAccountMap) {
+            return phoneIdToAccountMap[id];
+        }
+        else {
+            return "5839c66c0fa692b34a9b8780";
+        }
+    }
+    else if (type === "customer"){
+        if (id in fbIdToCustomerMap) {
+            return fbIdToCustomerMap[id];
+        }
+        else if (id in phoneIdToCustomerMap) {
+            return phoneIdToCustomerMap[id];
+        }
+        else {
+            return 0;
+        }
+    }
+}
+
 // Skills for greetings
 const greetingSkill = new Skill('my_greeting_skill', 'greeting', function (context, req, res) {
     return res.send(new SingleLineMessage("Hello. How can I help you?"));
@@ -94,7 +142,18 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
     // context[id] = id;
     // console.log(req.id);
     // console.log(context);
-    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    // let id = req.id;
+    // if (id in fbIdToAccountMap) {
+    //     let accId = fbIdToAccountMap[id]; 
+    // }
+    // else if (id in phoneIdToAccountMap) {
+    //     let accId = phoneIdToAccountMap[id];
+    // }
+    // else {
+    //     let accId = "5839c66c0fa692b34a9b8780";
+    // }
+    let accId = userResolver(req, "account");
+    var url = "http://api.reimaginebanking.com/accounts/" + accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
             if(error){
                     console.log(error);
@@ -111,8 +170,9 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
     });
 })
 
-const balanceSkill = new Skill('my_balance_skill', 'balance', function(context, req, res) {
-    var url = "http://api.reimaginebanking.com/customers/5839c5aa0fa692b34a9b8778/accounts?key=5e9a7df9497ab60eee4db8db8d16742d";
+const balanceSkill = new Skill('my_balance_skill', 'balance', function (context, req, res) {
+    let accId = userResolver(req, "customer");
+    var url = "http://api.reimaginebanking.com/customers/" + accId + "/accounts?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
             if(error){
                     console.log(error);
@@ -125,8 +185,9 @@ const balanceSkill = new Skill('my_balance_skill', 'balance', function(context, 
     });
 })
 
-const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', function(context, req, res) {
-    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', function (context, req, res) {
+    let accId = userResolver(req, "account");
+    var url = "http://api.reimaginebanking.com/accounts/"+ accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
             if(error){
                     console.log(error);
@@ -149,7 +210,8 @@ const unknownSkill = new Skill('my_unknown_skill', undefined, function (context,
 });
 
 const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category', function (context, req, res) {
-    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    let accId = userResolver(req, "account");
+    var url = "http://api.reimaginebanking.com/accounts/" + accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
         if(error){
                 console.log(error);
@@ -184,7 +246,8 @@ const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category',
 })
 
 const spendOnFoodSkill = new Skill('my_spend_on_food_skill', 'food_spent', function (context, req, res) {
-    var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    let accId = userResolver(req, "account");
+    var url = "http://api.reimaginebanking.com/accounts/" + accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
         if(error){
                 console.log(error);
