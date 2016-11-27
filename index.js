@@ -221,7 +221,7 @@ const capitalOneJokeSkill = new Skill('my_best_capital_one_skill', 'best_capital
 });
 
 const unknownSkill = new Skill('my_unknown_skill', undefined, function (context, req, res) {
-    return res.send(new SingleLineMessage("I'm sorry sir, I do not understand your query. Please try again."));
+    return res.send(new SingleLineMessage("I'm sorry, I do not understand your query. Please try again."));
 });
 
 const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category', function (context, req, res) {
@@ -324,7 +324,7 @@ bot.addSkill(balanceSkill, 0.8);
 bot.addSkill(lastPurchaseSkill, 0.8);
 bot.addSkill(spendByCategorySkill, 0.8);
 bot.addSkill(spendOnFoodSkill, 0.8);
-bot.addSkill(totalSpendSkill, 0.1);
+bot.addSkill(totalSpendSkill, 0.7);
 bot.addSkill(repeatSkill, 0.8);
 bot.addSkill(capitalOneJokeSkill);
 bot.addSkill(unknownSkill);
