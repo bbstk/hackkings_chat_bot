@@ -115,7 +115,7 @@ function userResolver(req, type) {
             return phoneIdToCustomerMap[id];
         }
         else {
-            return 0;
+            return "5839c5aa0fa692b34a9b8778";
         }
     }
 }
@@ -188,7 +188,7 @@ const balanceSkill = new Skill('my_balance_skill', 'balance', function (context,
     request.get(url,function(error,response,body){
             if(error){
                     console.log(error);
-            }else{
+            }else{  
                     console.log(JSON.parse(response.body)[0].balance);
                     let msg = JSON.parse(response.body)[0].balance;
                     let num = Math.round(msg*100)/100;
