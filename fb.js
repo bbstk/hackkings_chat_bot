@@ -5,19 +5,29 @@ const bodyParser = require('body-parser');
 const request = require('request');
 const app = express();
 const bot = require('./index');
- 
-app.set('port', (process.env.PORT || 80));
- 
+const path = require('path')
+var hbs = require('hbs');
+var fs = require('fs');
+app.set('port', (process.env.PORT || 60));
+
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: false}));
  
 // parse application/json
 app.use(bodyParser.json());
+app.set('view engine', '.hbs')  
+app.set('views', path.join(__dirname, 'views'))  
+
+app.use('/static', express.static(path.join(__dirname)));
  
 // index
 app.get('/', function (req, res) {
     console.log(req);
     res.send('hello world i am a secret bot')
+});
+
+app.get('/graph', function (req, res) {
+    res.render("graph.hbs",{})
 });
  
 // for facebook verification
