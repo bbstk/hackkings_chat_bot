@@ -8,7 +8,7 @@ const bot = require('./index');
 const path = require('path')
 var hbs = require('hbs');
 var fs = require('fs');
-app.set('port', (process.env.PORT || 60));
+app.set('port', (process.env.PORT || 80));
 
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({extended: false}));
@@ -27,7 +27,7 @@ app.get('/', function (req, res) {
 });
 
 app.get('/graph', function (req, res) {
-    res.render("graph.hbs",{})
+    res.render("graph",{});
 });
  
 // for facebook verification
@@ -107,7 +107,7 @@ function sendMessageWithButtons(sender, text) {
                 "elements":[
                   {
                     "title":"Help command",
-                    //"image_url":"http://petersapparel.parseapp.com/img/whiteshirt.png",
+                    //"image_url":"http://d7f6b465.ngrok.io/graph",
                     "subtitle":"Some example commands:",
                     "buttons":[
                       {
