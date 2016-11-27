@@ -63,9 +63,13 @@ bot.trainAll([
     new TrainingDocument('help', 'command help'),
 
     // Banking training
+    new TrainingDocument('repeat', 'can you repeat'),
+
     new TrainingDocument('food_spent', 'how much have i spent on food'),
 
     new TrainingDocument('total_spend', 'how much have i spent'),
+    new TrainingDocument('total_spend', 'what have i been spending'),
+    new TrainingDocument('total_spend', 'how much spent'),
 
     new TrainingDocument('category', 'spent on what'),
 
@@ -154,6 +158,7 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
     // }
     let accId = userResolver(req, "account");
     var url = "http://api.reimaginebanking.com/accounts/" + accId + "/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
+    context.lastRequest = 'total_spend';
     request.get(url,function(error,response,body){
             if(error){
                     console.log(error);
@@ -164,10 +169,17 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
                         total += element.amount;
                     })
                     let msg = total;
-                    console.log(msg);
-                    return res.send(new SingleLineMessage("You have spent £" + msg + " in total."));
+                    console.log(req.skill.current.topic);
+                    msg = "You have spent £" + msg + " in total."
+                    context.lastMsg = msg;
+                    bot.train('total_spend', req.message.content, function () {});
+                    return res.send(new SingleLineMessage(msg));
             }
     });
+})
+
+const repeatSkill = new Skill('my_repeat_skill', 'repeat', function (context, req, res) {
+    return res.send(new SingleLineMessage("Of course! My last message was \n" + context.lastMsg + " \n About " + context.lastRequest ));
 })
 
 const balanceSkill = new Skill('my_balance_skill', 'balance', function (context, req, res) {
@@ -299,17 +311,18 @@ const cJokeSkill = new Skill('my_chuck_norris_joke_skill', 'chuck_norris_joke', 
 
 
 // Add the skills to the bot
-bot.addSkill(greetingSkill, 0.9);
-bot.addSkill(sentoffSkill, 0.9);
-bot.addSkill(weatherSkill, 0.9);
+bot.addSkill(greetingSkill, 0.8);
+bot.addSkill(sentoffSkill, 0.8);
+bot.addSkill(weatherSkill, 0.8);
 bot.addSkill(helpSkill, 0.8);
-bot.addSkill(kJokeSkill, 0.9);
-bot.addSkill(cJokeSkill, 0.9);
-bot.addSkill(balanceSkill, 0.9);
-bot.addSkill(lastPurchaseSkill, 0.9);
-bot.addSkill(spendByCategorySkill, 0.9);
-bot.addSkill(spendOnFoodSkill, 0.9);
-bot.addSkill(totalSpendSkill, 0.9);
+bot.addSkill(kJokeSkill, 0.8);
+bot.addSkill(cJokeSkill, 0.8);
+bot.addSkill(balanceSkill, 0.8);
+bot.addSkill(lastPurchaseSkill, 0.8);
+bot.addSkill(spendByCategorySkill, 0.8);
+bot.addSkill(spendOnFoodSkill, 0.8);
+bot.addSkill(totalSpendSkill, 0.1);
+bot.addSkill(repeatSkill, 0.8);
 bot.addSkill(capitalOneJokeSkill);
 bot.addSkill(unknownSkill);
 
