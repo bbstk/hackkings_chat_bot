@@ -16,11 +16,13 @@ app.use(bodyParser.json());
  
 // index
 app.get('/', function (req, res) {
+    console.log(req);
     res.send('hello world i am a secret bot')
 });
  
 // for facebook verification
 app.get('/webhook/', function (req, res) {
+    console.log(req);
     if (req.query['hub.verify_token'] === '-_TestToken619_-') {
         return res.send(req.query['hub.challenge'])
     }
@@ -29,23 +31,49 @@ app.get('/webhook/', function (req, res) {
  
 // to post data
 app.post('/webhook/', function (req, res) {
-    console.log(req);
+    //console.log(req);
+    //console.log(req);
     var data = req.body;
+    //console.log(data)
     if(data.object !== 'page') {
         return;
     }
  
     var pageEntry = data.entry;
- 
     res.send();
     return pageEntry.forEach(function(entry) {
         return entry.messaging.forEach(function(event) {
+            //console.log(event);
+            //console.log("~~~~~~~ event.postback: ", event.postback);
+           
             var sender = event.sender.id;
-            console.log(sender);
+
+
+            //CAN HANDLE POSTBACKS FROM BUTTONS NOW
+            if(event.postback != undefined) {
+                var text = event.postback.payload;
+                return bot.resolve(sender, text, function(err, messages) {
+                    return messages.forEach(function(message) {
+
+
+                        if(message.skill === "help"){
+                            return sendMessageWithButtons(sender, message.content);
+                        }
+                        return sendTextMessage(sender, message.content);
+                    });
+                });
+            }
+
+            
+            //console.log(sender);
             if (event.message && event.message.text) {
                 var text = event.message.text;
                 return bot.resolve(sender, text, function(err, messages) {
                     return messages.forEach(function(message) {
+                        console.log(message.skill);
+                        if(message.skill === "help"){
+                            return sendMessageWithButtons(sender, message.content);
+                        }
                         return sendTextMessage(sender, message.content);
                     });
                 });
@@ -59,6 +87,53 @@ app.post('/webhook/', function (req, res) {
 // const token = process.env.PAGE_ACCESS_TOKEN
 const token = "EAADiB5qMxzgBAL51qWWMZBDdKuKj3IEKDhIbfF9JO5tjhcdvNGeiTMjbEHcq0GHaL1LrEOheKGgQBbRVTrnppqEkrF1YYC7EAwrQfWJh0g15B6Vss33sZBZBYZAYIP3JpHV4jxZAOzVd470tFTW30hFMTIvNZCfv9ZBmA6dZAlZAiTgZDZD";
  
+function sendMessageWithButtons(sender, text) {
+
+    var messageData = {
+            "attachment":{
+              "type":"template",
+              "payload":{
+                "template_type":"generic",
+                "elements":[
+                  {
+                    "title":"Help command",
+                    //"image_url":"http://petersapparel.parseapp.com/img/whiteshirt.png",
+                    "subtitle":"Some example commands:",
+                    "buttons":[
+                      {
+                        "type":"postback",
+                        "title":"Balance",
+                        "payload":"balance"
+                      },
+                        {
+                        "type":"postback",
+                        "title":"Last Purchase",
+                        "payload":"Last Purchase"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    });
+}
+
 function sendTextMessage(sender, text) {
     var messageData = { text:text };
  

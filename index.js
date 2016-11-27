@@ -36,6 +36,9 @@ bot.trainAll([
     new TrainingDocument('weather', 'weather'),
     new TrainingDocument('weather', 'is it going to rain'),
 
+    new TrainingDocument('help', 'help'),
+    new TrainingDocument('help', 'commands'),
+    new TrainingDocument('help', 'command help'),
 
     // Banking training
     new TrainingDocument('food_spent', 'how much have i spent on food'),
@@ -78,6 +81,11 @@ const weatherSkill = new Skill('my_weather_skill', 'weather', function (context,
     return res.send(new SingleLineMessage("It is not in my duties to be a weatherman. You can go ask Siri about that."));
 });
 
+const helpSkill = new Skill('my_help_skill', 'help', function (context, req, res){
+    var result = new SingleLineMessage(JSON.parse("{}"));
+    result.skill = "help";
+    return res.send(result);
+});
 
 // Skills for banking
 const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', function (context, req, res)  {
@@ -231,6 +239,7 @@ const cJokeSkill = new Skill('my_chuck_norris_joke_skill', 'chuck_norris_joke', 
 bot.addSkill(greetingSkill, 0.9);
 bot.addSkill(sentoffSkill, 0.9);
 bot.addSkill(weatherSkill, 0.9);
+bot.addSkill(helpSkill, 0.8);
 bot.addSkill(kJokeSkill, 0.9);
 bot.addSkill(cJokeSkill, 0.9);
 bot.addSkill(balanceSkill, 0.9);
