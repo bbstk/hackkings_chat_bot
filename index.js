@@ -71,7 +71,7 @@ bot.trainAll([
     new TrainingDocument('total_spend', 'what have i been spending'),
     new TrainingDocument('total_spend', 'how much spent'),
 
-    new TrainingDocument('category', 'spent on what'),
+    new TrainingDocument('category', 'spending by category'),
 
     new TrainingDocument('balance', 'balance'),
 
@@ -214,13 +214,14 @@ const lastPurchaseSkill = new Skill('my_last_purchase_skill', 'last_purchase', f
                     return res.send(new SingleLineMessage(msg));
             }
     });
-})
+})  
 
 const capitalOneJokeSkill = new Skill('my_best_capital_one_skill', 'best_capital_one', function(context, req, res){
     return res.send(new SingleLineMessage("I have heard Capital One are pretty good."));
 });
 
 const unknownSkill = new Skill('my_unknown_skill', undefined, function (context, req, res) {
+    console.log(req.skill.current.topic);
     return res.send(new SingleLineMessage("I'm sorry, I do not understand your query. Please try again."));
 });
 
