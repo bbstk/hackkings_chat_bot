@@ -17,7 +17,29 @@ const Skill = BotTypes.Skill;
 const bot = new Bot();
 
 bot.trainAll([
+
+    // Train the bot to be nice and good
+    new TrainingDocument('greeting', 'hi'),
+    new TrainingDocument('greeting', 'hello'),
+    new TrainingDocument('greeting', 'sup'),
+    new TrainingDocument('greeting', 'Good Morning'),
+    new TrainingDocument('greeting', 'Good Evening'),
+    new TrainingDocument('greeting', 'Howdy'),
+
+    new TrainingDocument('sentoff', 'bye'),
+    new TrainingDocument('sentoff', 'see ya'),
+    new TrainingDocument('sentoff', 'cu'),
+    new TrainingDocument('sentoff', 'goodbye'),
+    new TrainingDocument('sentoff', 'aufwiedersehen'),
+
+    new TrainingDocument('weather', 'what is the weather like'),
+    new TrainingDocument('weather', 'weather'),
+    new TrainingDocument('weather', 'is it going to rain'),
+
+
+    // Banking training
     new TrainingDocument('food_spent', 'how much have i spent on food'),
+
     new TrainingDocument('total_spend', 'how much have i spent'),
 
     new TrainingDocument('category', 'spent on what'),
@@ -26,13 +48,13 @@ bot.trainAll([
 
     new TrainingDocument('last_purchase', 'last purchase'),
 
-    new TrainingDocument('knock_joke', 'knock'),
-    new TrainingDocument('knock_joke', 'knock knock'),
-
     new TrainingDocument('best_capital_one', 'best credit card company'),
     new TrainingDocument('best_capital_one', 'awesome company'),
     new TrainingDocument('best_capital_one', 'really nice firm'),
 
+    // Jokes to be removed
+    new TrainingDocument('knock_joke', 'knock'),
+    new TrainingDocument('knock_joke', 'knock knock'),
 
     new TrainingDocument('chuck_norris_joke', 'chuck norris'),
     new TrainingDocument('chuck_norris_joke', 'chuck'),
@@ -42,8 +64,28 @@ bot.trainAll([
     console.log(' BOT> Ready.');
 });
 
+
+// Skills for greetings
+const greetingSkill = new Skill('my_greeting_skill', 'greeting', function (context, req, res) {
+    return res.send(new SingleLineMessage("Hello. How can I help you?"));
+});
+
+const sentoffSkill = new Skill('my_sentoff_skill', 'sentoff', function (context, req, res) {
+    return res.send(new SingleLineMessage("I hope I was helpful for you. Goodbye."));
+});
+
+const weatherSkill = new Skill('my_weather_skill', 'weather', function (context, req, res){
+    return res.send(new SingleLineMessage("It is not in my duties to be a weatherman. You can go ask Siri about that."));
+});
+
+
+// Skills for banking
 const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', function (context, req, res)  {
-    console.log(bot.getContextStore());
+    //context.req[id] = "tok";
+    // let id = req.id;
+    // context[id] = id;
+    // console.log(req.id);
+    // console.log(context);
     var url = "http://api.reimaginebanking.com/accounts/5839c66c0fa692b34a9b8780/purchases?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
             if(error){
@@ -61,32 +103,6 @@ const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', functio
     });
 })
 
-const kJokeSkill = new Skill('my_knock_knock_joke_skill', 'knock_joke', function (context, req, res) {
-    if (!context.kJokes) {
-        context.kJokes = [];
-    }
-
-    let newJoke = knockKnockJokes();
-    let counter = 0;
-    while(counter < 11 && context.kJokes.indexOf(newJoke) !== -1) {
-        newJoke = knockKnockJokes();
-        counter++;
-    }
-
-    if(counter === 11) {
-        return res.send(new SingleLineMessage('Sorry I am out of knock knock jokes. :('));
-    }
-
-    context.kJokes.push(newJoke);
-    return res.send(new SingleLineMessage(newJoke));
-});
-
-const cJokeSkill = new Skill('my_chuck_norris_joke_skill', 'chuck_norris_joke', function(context, req, res) {
-    return cnApi.getRandom().then(function(data) {
-        return res.send(new SingleLineMessage(data.value.joke));
-    });
-});
-
 const balanceSkill = new Skill('my_balance_skill', 'balance', function(context, req, res) {
     var url = "http://api.reimaginebanking.com/customers/5839c5aa0fa692b34a9b8778/accounts?key=5e9a7df9497ab60eee4db8db8d16742d";
     request.get(url,function(error,response,body){
@@ -94,7 +110,9 @@ const balanceSkill = new Skill('my_balance_skill', 'balance', function(context, 
                     console.log(error);
             }else{
                     console.log(JSON.parse(response.body)[0].balance);
-                    return res.send(new SingleLineMessage(JSON.parse(response.body)[0].balance));
+                    let msg = JSON.parse(response.body)[0].balance;
+                    let num = Math.round(msg*100)/100;
+                    return res.send(new SingleLineMessage("You currently have £" + num + " in your account."));
             }
     });
 })
@@ -176,11 +194,43 @@ const spendOnFoodSkill = new Skill('my_spend_on_food_skill', 'food_spent', funct
 
                 console.log(msg);
                 return res.send(new SingleLineMessage(msg));
-
-            
-        }
+            }
     });
 })
+
+
+// Joke skills to be removed
+const kJokeSkill = new Skill('my_knock_knock_joke_skill', 'knock_joke', function (context, req, res) {
+    if (!context.kJokes) {
+        context.kJokes = [];
+    }
+
+    let newJoke = knockKnockJokes();
+    let counter = 0;
+    while(counter < 11 && context.kJokes.indexOf(newJoke) !== -1) {
+        newJoke = knockKnockJokes();
+        counter++;
+    }
+
+    if(counter === 11) {
+        return res.send(new SingleLineMessage('Sorry I am out of knock knock jokes. :('));
+    }
+
+    context.kJokes.push(newJoke);
+    return res.send(new SingleLineMessage(newJoke));
+});
+
+const cJokeSkill = new Skill('my_chuck_norris_joke_skill', 'chuck_norris_joke', function(context, req, res) {
+    return cnApi.getRandom().then(function(data) {
+        return res.send(new SingleLineMessage(data.value.joke));
+    });
+});
+
+
+// Add the skills to the bot
+bot.addSkill(greetingSkill, 0.9);
+bot.addSkill(sentoffSkill, 0.9);
+bot.addSkill(weatherSkill, 0.9);
 bot.addSkill(kJokeSkill, 0.9);
 bot.addSkill(cJokeSkill, 0.9);
 bot.addSkill(balanceSkill, 0.9);
