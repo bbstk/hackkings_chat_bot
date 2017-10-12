@@ -6,8 +6,8 @@ const request = require('request');
 const app = express();
 const bot = require('./index');
 const path = require('path')
-var hbs = require('hbs');
-var fs = require('fs');
+const hbs = require('hbs');
+const fs = require('fs');
 app.set('port', (process.env.PORT || 80));
 
 // parse application/x-www-form-urlencoded
@@ -66,8 +66,14 @@ app.post('/webhook/', function (req, res) {
                     return messages.forEach(function(message) {
 
 
-                        if(message.skill === "help"){
-                            return sendMessageWithButtons(sender, message.content);
+                        if(message.skill === "help" || message.skill === "undefined"){
+                            return sendInitMessage(sender, message.content);
+                        }
+                        if(message.skill === "order"){
+                        	return sendOrderMessage(sender, message.content);
+                        }
+                        if(message.skill === "starter"){
+                        	return sendStarterMessage(sender, message.content);
                         }
                         return sendTextMessage(sender, message.content);
                     });
@@ -81,8 +87,14 @@ app.post('/webhook/', function (req, res) {
                 return bot.resolve(sender, text, function(err, messages) {
                     return messages.forEach(function(message) {
                         console.log(message.skill);
-                        if(message.skill === "help"){
-                            return sendMessageWithButtons(sender, message.content);
+                        if(message.skill === "help" || message.skill === "undefined"){
+                            return sendInitMessage(sender, message.content);
+                        }
+                        if(message.skill === "order"){
+                        	return sendOrderMessage(sender, message.content);
+                        }
+                        if(message.skill === "starter"){
+                        	return sendStarterMessage(sender, message.content);
                         }
                         return sendTextMessage(sender, message.content);
                     });
@@ -95,9 +107,9 @@ app.post('/webhook/', function (req, res) {
  
 // recommended to inject access tokens as environmental variables, e.g.
 // const token = process.env.PAGE_ACCESS_TOKEN
-const token = "EAADiB5qMxzgBAL51qWWMZBDdKuKj3IEKDhIbfF9JO5tjhcdvNGeiTMjbEHcq0GHaL1LrEOheKGgQBbRVTrnppqEkrF1YYC7EAwrQfWJh0g15B6Vss33sZBZBYZAYIP3JpHV4jxZAOzVd470tFTW30hFMTIvNZCfv9ZBmA6dZAlZAiTgZDZD";
+const token = "EAAB84ZB9CZBXEBAH4MQ13ff9vsgc5Htzh0vBTxc9ch3yT8mrmasYUdvM2r2eGjKVbbGUJwH1dHLH0FlNNy2zypZAKKJbTSAGxTveQizZCXX0qM4ZAHIQO3wCKGCJprr5SLZAFkKZCfPSNZCa72kT9tN1tJuyrb6JCfs6bxNgL8NZCxAZDZD";
  
-function sendMessageWithButtons(sender, text) {
+function sendInitMessage(sender, text) {
 
     var messageData = {
             "attachment":{
@@ -106,18 +118,24 @@ function sendMessageWithButtons(sender, text) {
                 "template_type":"generic",
                 "elements":[
                   {
-                    "title":"Help command",
-                    //"image_url":"http://d7f6b465.ngrok.io/graph",
-                    "subtitle":"Some example commands:",
+                    "title":"Hello!",
+                    //"image_url":"http://7eb260f2.ngrok.io/graph",
+                    "subtitle":"Do you want to:",
                     "buttons":[
                       {
                         "type":"postback",
-                        "title":"Balance",
-                        "payload":"balance"
+                        "title":"Order food",
+                        "payload":"order"
                       },
                         {
                         "type":"postback",
-                        "title":"Last Purchase",
+                        "title":"Book a table",
+                        "payload":"Last Purchase"
+                      }
+                      ,
+                        {
+                        "type":"postback",
+                        "title":"Leave us feedback",
                         "payload":"Last Purchase"
                       }
                     ]
@@ -126,6 +144,147 @@ function sendMessageWithButtons(sender, text) {
               }
             }
           }
+
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    });
+}
+
+function sendOrderMessage(sender, text) {
+
+    var messageData = {
+            "attachment":{
+              "type":"template",
+              "payload":{
+                "template_type":"generic",
+                "elements":[
+                  {
+                    "title":"Sure thing!",
+                    //"image_url":"http://7eb260f2.ngrok.io/graph",
+                    "subtitle":"What would you like?",
+                    "buttons":[
+                      {
+                        "type":"postback",
+                        "title":"Starters",
+                        "payload":"starter"
+                      },
+                        {
+                        "type":"postback",
+                        "title":"Mains",
+                        "payload":"Last Purchase"
+                      }
+                      ,
+                        {
+                        "type":"postback",
+                        "title":"Sides",
+                        "payload":"Last Purchase"
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    });
+}
+
+function sendStarterMessage(sender, text) {
+
+    var messageData = {
+    		"attachment": {
+		      "type": "template",
+		      "payload": {
+		        "template_type": "list",
+		        "top_element_style": "compact",
+		        "elements": [
+		          {
+		            "title": "Chicken Pakora",
+		            "subtitle": "Our crispy favourite!",
+		            "image_url": "http://betterbutterbucket.s3-website-ap-southeast-1.amazonaws.com/319x319/public/recipe_thumb/medium/1443529872WMASm5WuJf_thumb.jpg",          
+		            "buttons": [
+		              {
+		                "type":"postback",
+                        "title":"Order",
+                        "payload":"starter"		             
+		              },
+		             ]
+		          },
+		          {
+		            "title": "Veg Pakora",
+		            "subtitle": "You need to try this classic!",
+		            "image_url": "http://www.harighotra.co.uk/images/recipes/hero/vegetable-pakora-hero.jpg",
+		            //"default_action": {
+		              // "type": "web_url",
+		              // "url": "https://google.com",
+		              // "messenger_extensions": false,
+		              // "webview_height_ratio": "tall",
+		              // //"fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+		            //}
+		            "buttons": [
+		              {
+		                "type":"postback",
+                        "title":"Order",
+                        "payload":"starter"		             
+		              },
+		             ]
+		          },
+		          {
+		            "title": "Chilli Paneer",
+		            "image_url": "https://i.ytimg.com/vi/Pomwkv-Ou8M/hqdefault.jpg",
+		            "subtitle": "Bring some spice to the table!",
+		            //"default_action": {
+		              // "type": "web_url",
+		              // "url": "https://google.com",
+		              // "messenger_extensions": false,
+		              // "webview_height_ratio": "tall",
+		              //"fallback_url": "https://peterssendreceiveapp.ngrok.io/"
+		            //},
+		            "buttons": [
+		              {
+		                "type":"postback",
+                        "title":"Order",
+                        "payload":"starter"		             
+		              },
+		            ]        
+		          }
+		        ],
+		         "buttons": [
+		          {
+		            "title": "View More",
+		            "type": "postback",
+		            "payload": "payload"            
+		          }
+		        ]  
+		      }
+		    }
+		}
 
     request({
         url: 'https://graph.facebook.com/v2.6/me/messages',

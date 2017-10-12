@@ -40,6 +40,12 @@ const phoneIdToAccountMap = {
 
 bot.trainAll([
 
+    new TrainingDocument('order', 'order'),
+    new TrainingDocument('order', 'order food'),
+
+    new TrainingDocument('starter', 'starters'),
+    new TrainingDocument('starter', 'starter'),
+
     // Train the bot to be nice and good
     new TrainingDocument('greeting', 'hi'),
     new TrainingDocument('greeting', 'hello'),
@@ -139,6 +145,12 @@ const helpSkill = new Skill('my_help_skill', 'help', function (context, req, res
     return res.send(result);
 });
 
+const orderSkill = new Skill('my_order_skill', 'order', function (context, req, res){
+    var result = new SingleLineMessage(JSON.parse("{}"));
+    result.skill = "order";
+    return res.send(result);
+});
+
 // Skills for banking
 const totalSpendSkill = new Skill('my_total_spend_skill', 'total_spend', function (context, req, res)  {
     //context.req[id] = "tok";
@@ -227,9 +239,16 @@ const capitalOneJokeSkill = new Skill('my_best_capital_one_skill', 'best_capital
     return res.send(new SingleLineMessage(msg));
 });
 
-const unknownSkill = new Skill('my_unknown_skill', undefined, function (context, req, res) {
-    console.log(req.skill.current.topic);
-    return res.send(new SingleLineMessage("I'm sorry, I do not understand your query. Please try again."));
+const initSkill = new Skill('my_unknown_skill', 'undefined', function (context, req, res) {
+    var result = new SingleLineMessage(JSON.parse("{}"));
+    result.skill = "undefined";
+    return res.send(result);
+});
+
+const starterSkill = new Skill('my_starter_skill', 'starter', function (context, req, res) {
+    var result = new SingleLineMessage(JSON.parse("{}"));
+    result.skill = "starter";
+    return res.send(result);
 });
 
 const spendByCategorySkill = new Skill('my_spend_by_category_skill', 'category', function (context, req, res) {
@@ -339,6 +358,8 @@ bot.addSkill(spendOnFoodSkill, 0.8);
 bot.addSkill(totalSpendSkill, 0.7);
 bot.addSkill(repeatSkill, 0.8);
 bot.addSkill(capitalOneJokeSkill);
-bot.addSkill(unknownSkill);
+bot.addSkill(orderSkill);
+bot.addSkill(initSkill);
+bot.addSkill(starterSkill);
 
 module.exports = bot;
