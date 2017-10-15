@@ -6,8 +6,7 @@ const request = require('request');
 const app = express();
 const bot = require('./index');
 const path = require('path')
-const hbs = require('hbs');
-const fs = require('fs');
+
 app.set('port', (process.env.PORT || 80));
 
 // parse application/x-www-form-urlencoded
@@ -15,24 +14,17 @@ app.use(bodyParser.urlencoded({extended: false}));
  
 // parse application/json
 app.use(bodyParser.json());
-app.set('view engine', '.hbs')  
-app.set('views', path.join(__dirname, 'views'))  
 
-app.use('/static', express.static(path.join(__dirname)));
+app.use('/img', express.static(path.join(__dirname,'static')));
  
 // index
 app.get('/', function (req, res) {
-    console.log(req);
     res.send('hello world i am a secret bot')
-});
-
-app.get('/graph', function (req, res) {
-    res.render("graph",{});
 });
  
 // for facebook verification
 app.get('/webhook/', function (req, res) {
-    console.log(req);
+    //console.log(req);
     if (req.query['hub.verify_token'] === '-_TestToken619_-') {
         return res.send(req.query['hub.challenge'])
     }
@@ -41,7 +33,6 @@ app.get('/webhook/', function (req, res) {
  
 // to post data
 app.post('/webhook/', function (req, res) {
-    //console.log(req);
     //console.log(req);
     var data = req.body;
     //console.log(data)
@@ -75,6 +66,9 @@ app.post('/webhook/', function (req, res) {
                         if(message.skill === "starter"){
                         	return sendStarterMessage(sender, message.content);
                         }
+                        if(message.skill === "main") {
+                        	return sendMainMessage(sender, message.content);
+                        }
                         return sendTextMessage(sender, message.content);
                     });
                 });
@@ -96,6 +90,9 @@ app.post('/webhook/', function (req, res) {
                         if(message.skill === "starter"){
                         	return sendStarterMessage(sender, message.content);
                         }
+                        if(message.skill === "main") {
+                        	return sendMainMessage(sender, message.content);
+                        }
                         return sendTextMessage(sender, message.content);
                     });
                 });
@@ -110,7 +107,7 @@ app.post('/webhook/', function (req, res) {
 const token = "EAAB84ZB9CZBXEBAH4MQ13ff9vsgc5Htzh0vBTxc9ch3yT8mrmasYUdvM2r2eGjKVbbGUJwH1dHLH0FlNNy2zypZAKKJbTSAGxTveQizZCXX0qM4ZAHIQO3wCKGCJprr5SLZAFkKZCfPSNZCa72kT9tN1tJuyrb6JCfs6bxNgL8NZCxAZDZD";
  
 function sendInitMessage(sender, text) {
-
+	console.log(sender)
     var messageData = {
             "attachment":{
               "type":"template",
@@ -163,7 +160,6 @@ function sendInitMessage(sender, text) {
 }
 
 function sendOrderMessage(sender, text) {
-
     var messageData = {
             "attachment":{
               "type":"template",
@@ -183,13 +179,13 @@ function sendOrderMessage(sender, text) {
                         {
                         "type":"postback",
                         "title":"Mains",
-                        "payload":"Last Purchase"
+                        "payload":"mains"
                       }
                       ,
                         {
                         "type":"postback",
                         "title":"Sides",
-                        "payload":"Last Purchase"
+                        "payload":"sides"
                       }
                     ]
                   }
@@ -216,7 +212,6 @@ function sendOrderMessage(sender, text) {
 }
 
 function sendStarterMessage(sender, text) {
-
     var messageData = {
     		"attachment": {
 		      "type": "template",
@@ -266,6 +261,80 @@ function sendStarterMessage(sender, text) {
 		              // "webview_height_ratio": "tall",
 		              //"fallback_url": "https://peterssendreceiveapp.ngrok.io/"
 		            //},
+		            "buttons": [
+		              {
+		                "type":"postback",
+                        "title":"Order",
+                        "payload":"starter"		             
+		              },
+		            ]        
+		          }
+		        ],
+		         "buttons": [
+		          {
+		            "title": "View More",
+		            "type": "postback",
+		            "payload": "payload"            
+		          }
+		        ]  
+		      }
+		    }
+		}
+
+    request({
+        url: 'https://graph.facebook.com/v2.6/me/messages',
+        qs: {access_token:token},
+        method: 'POST',
+        json: {
+            recipient: {id:sender},
+            message: messageData,
+        }
+    }, function(error, response, body) {
+        if (error) {
+            console.log('Error sending messages: ', error)
+        } else if (response.body.error) {
+            console.log('Error: ', response.body.error)
+        }
+    });
+}
+
+function sendMainMessage(sender, text) {
+    var messageData = {
+    		"attachment": {
+		      "type": "template",
+		      "payload": {
+		        "template_type": "list",
+		        "top_element_style": "compact",
+		        "elements": [
+		          {
+		            "title": "Chicken Tikka Main",
+		            "subtitle": "The traditional best seller!",
+		            "image_url": "https://static.wixstatic.com/media/d681af_c34d2818420a40f88a4815a27a4ce0e1~mv2.jpg_256",          
+		            "buttons": [
+		              {
+		                "type":"postback",
+                        "title":"Order",
+                        "payload":"starter"		             
+		              },
+		             ]
+		          },
+		          {
+		            "title": "Tandoori Mix",
+		            "subtitle": "Chicken tikka, lamb tikka, donner & tandoori chicken",
+		            "image_url": "https://static.wixstatic.com/media/d681af_c34d2818420a40f88a4815a27a4ce0e1~mv2.jpg_256",
+
+		            "buttons": [
+		              {
+		                "type":"postback",
+                        "title":"Order",
+                        "payload":"starter"		             
+		              },
+		             ]
+		          },
+		          {
+		            "title": "Chicken Korma",
+		            "image_url": "https://bigoven-res.cloudinary.com/image/upload/t_recipe-256/indian-chicken-korma-1464411.jpg",
+		            "subtitle": "Mild and coconuty. A must try!",
 		            "buttons": [
 		              {
 		                "type":"postback",
