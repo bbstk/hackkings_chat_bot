@@ -49,14 +49,12 @@ app.post('/webhook/', function (req, res) {
            
             var sender = event.sender.id;
 
-
             //CAN HANDLE POSTBACKS FROM BUTTONS NOW
             if(event.postback != undefined) {
                 var text = event.postback.payload;
                 return bot.resolve(sender, text, function(err, messages) {
                     return messages.forEach(function(message) {
-
-
+                    	console.log(message)
                         if(message.skill === "help" || message.skill === "undefined"){
                             return sendInitMessage(sender, message.content);
                         }
@@ -68,6 +66,12 @@ app.post('/webhook/', function (req, res) {
                         }
                         if(message.skill === "main") {
                         	return sendMainMessage(sender, message.content);
+                        }
+                        if(message.skill === "feedback") {
+                        	return sendTextMessage(sender, "We greatly appreciate your feedback. Please let us know your thoughts about us!")
+                        }
+                        if(message.skill === "thanks") {
+                        	return sendTextMessage(sender, "Thank you for your feedback! Our manager will shortly look into it.")
                         }
                         return sendTextMessage(sender, message.content);
                     });
@@ -80,7 +84,7 @@ app.post('/webhook/', function (req, res) {
                 var text = event.message.text;
                 return bot.resolve(sender, text, function(err, messages) {
                     return messages.forEach(function(message) {
-                        console.log(message.skill);
+                    	console.log(message)
                         if(message.skill === "help" || message.skill === "undefined"){
                             return sendInitMessage(sender, message.content);
                         }
@@ -92,6 +96,12 @@ app.post('/webhook/', function (req, res) {
                         }
                         if(message.skill === "main") {
                         	return sendMainMessage(sender, message.content);
+                        }
+                        if(message.skill === "feedback") {
+                        	return sendTextMessage(sender, "We greatly appreciate your feedback. Please let us know your thoughts about us!")
+                        }
+                        if(message.skill === "thanks") {
+                        	return sendTextMessage(sender, "Thank you for your feedback! Our manager will shortly look into it.")
                         }
                         return sendTextMessage(sender, message.content);
                     });
@@ -133,7 +143,7 @@ function sendInitMessage(sender, text) {
                         {
                         "type":"postback",
                         "title":"Leave us feedback",
-                        "payload":"Last Purchase"
+                        "payload":"feedback"
                       }
                     ]
                   }
